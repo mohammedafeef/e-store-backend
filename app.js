@@ -16,20 +16,20 @@ const app = express();
 // Allow Cross-Origin requests
 app.use(cors());
 
-// // Set security HTTP headers
-// app.use(helmet());
+// Set security HTTP headers
+app.use(helmet());
 
 //Using bodyparser through middleware to format the req body
 app.use(bodyParser.json());
 
-// // Data sanitization against Nosql query injection
-// app.use(mongoSanitize());
+// Data sanitization against Nosql query injection
+app.use(mongoSanitize());
 
-// // Data sanitization against XSS(clean user input from malicious HTML code)
-// app.use(xss());
+// Data sanitization against XSS(clean user input from malicious HTML code)
+app.use(xss());
 
-// // Prevent parameter pollution
-// app.use(hpp());
+// Prevent parameter pollution
+app.use(hpp());
 
 // Routes
 app.use("/user", userRoutes);
