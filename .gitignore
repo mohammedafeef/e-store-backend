@@ -1,0 +1,7 @@
+/node_modules
+
+#secret keys
+.env
+
+#secret api keys
+tester.json
