@@ -57,7 +57,7 @@ exports.addToCart = async (req, res, next) => {
         products: [{ productId, quantity: 1, name, price, imageUrl }],
       });
 
-      return res.status(201).json({ data: newCart );
+      return res.status(201).json({ data: newCart});
     }
   } catch (err) {
     next(err);
