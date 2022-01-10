@@ -4,7 +4,7 @@ const RouteError = require("../utils/RouteError");
 exports.getProducts = async (req, res, next) => {
   try {
     const products = await Product.find().select("-__v");
-    res.status(200).json({ data: { products } });
+    res.status(200).json({ data: products });
   } catch (err) {
     next(err);
   }
@@ -27,7 +27,7 @@ exports.addProduct = async (req, res, next) => {
       imageUrl,
       quandity,
     });
-    res.status(201).json({ data: { product } });
+    res.status(201).json({ data: product });
   } catch (err) {
     next(err);
   }

@@ -12,7 +12,7 @@ exports.getCart = async (req, res, next) => {
         next
       );
     }
-    return res.status(200).json({ data: { cart } });
+    return res.status(200).json({ data: cart });
   } catch (err) {
     next(err);
   }
@@ -49,7 +49,7 @@ exports.addToCart = async (req, res, next) => {
         cart.products.push({ productId, quantity: 1, name, price, imageUrl });
       }
       cart = await cart.save();
-      return res.status(201).json({ data: { cart } });
+      return res.status(201).json({ data: cart });
     } else {
       //no cart for user, create new cart
       const newCart = await Cart.create({
@@ -57,7 +57,7 @@ exports.addToCart = async (req, res, next) => {
         products: [{ productId, quantity: 1, name, price, imageUrl }],
       });
 
-      return res.status(201).json({ data: { newCart } });
+      return res.status(201).json({ data: newCart );
     }
   } catch (err) {
     next(err);
@@ -93,7 +93,7 @@ exports.removeFromCart = async (req, res, next) => {
         }
       }
       cart = await cart.save();
-      return res.status(201).json({ data: { cart } });
+      return res.status(201).json({ data: cart  });
     } else {
       //no cart for user, create new cart
       return next(

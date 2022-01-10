@@ -16,7 +16,7 @@ exports.login = async (req, res, next) => {
       );
     const user = await User.findOne({ email }).select("+password");
     console.log(user);
-    const valid = await authHelper.matchPassword(password,user.password);
+    const valid = await authHelper.matchPassword(password, user.password);
     console.log(valid);
     if (!user || !(await authHelper.matchPassword(password, user.password))) {
       return next(
@@ -28,7 +28,7 @@ exports.login = async (req, res, next) => {
     }
     const token = await authHelper.createNewToken(user.id);
     user.password = undefined;
-    res.status(200).json({ data: { token, user } });
+    res.status(200).json({ data: { ...user, token } });
   } catch (err) {
     next(err);
   }
@@ -42,7 +42,7 @@ exports.register = async (req, res, next) => {
       password: req.body.password,
     });
     user.password = undefined;
-    res.status(201).json({ data: { user } });
+    res.status(201).json({ data: user });
   } catch (err) {
     next(err);
   }
