@@ -15,9 +15,7 @@ exports.login = async (req, res, next) => {
         next
       );
     const user = await User.findOne({ email }).select("+password");
-    console.log(user);
     const valid = await authHelper.matchPassword(password, user.password);
-    console.log(valid);
     if (!user || !(await authHelper.matchPassword(password, user.password))) {
       return next(
         new RouteError(401, "fail", "Email or Password is wrong"),
@@ -68,7 +66,6 @@ exports.autheticateUser = async (req, res, next) => {
       req.headers.token,
       process.env.TOKEN_SECRET_KEY
     );
-    console.log(userCredentials);
     const user = await User.findById(userCredentials);
     if (!user)
       return next(

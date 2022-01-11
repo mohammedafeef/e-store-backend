@@ -1,32 +1,28 @@
 const Cart = require("../models/Cart");
+const Product = require("../models/Product");
 
 exports.getCart = async (req, res, next) => {
   try {
     const userId = req.user;
     let cart = await Cart.findOne({ userId });
     if (!cart) {
-      return next(
-        new RouteError(400, "fail", "cart not exists for user"),
-        req,
-        res,
-        next
-      );
+      const newCart = await Cart.create({
+        userId,
+        products: [],
+      });
+      return res.status(201).json({ data: newCart.products });
     }
-    return res.status(200).json({ data: cart });
+    return res.status(200).json({ data: cart.products });
   } catch (err) {
     next(err);
   }
 };
 exports.addToCart = async (req, res, next) => {
   try {
-    const { productId, price, name, imageUrl } = req.body;
-    if (!productId || !price || !name || !imageUrl)
+    const { productId } = req.body;
+    if (!productId)
       return next(
-        new RouteError(
-          400,
-          "fail",
-          "productId, quantity, price, name are required"
-        ),
+        new RouteError(400, "fail", "productId name are required"),
         req,
         res,
         next
@@ -34,7 +30,6 @@ exports.addToCart = async (req, res, next) => {
     const userId = req.user;
 
     let cart = await Cart.findOne({ userId });
-    console.log(cart);
     if (cart) {
       //cart exists for user
       let itemIndex = cart.products.findIndex((p) => p.productId == productId);
@@ -45,19 +40,37 @@ exports.addToCart = async (req, res, next) => {
         productItem.quantity += 1;
         cart.products[itemIndex] = productItem;
       } else {
+        const item = await Product.findById(productId);
         //product does not exists in cart, add new item
-        cart.products.push({ productId, quantity: 1, name, price, imageUrl });
+        cart.products.push({
+          productId,
+          quantity: 1,
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          imageUrl: item.imageUrl,
+        });
       }
       cart = await cart.save();
       return res.status(201).json({ data: cart });
     } else {
+      const item = await Product.findById(productId);
       //no cart for user, create new cart
       const newCart = await Cart.create({
         userId,
-        products: [{ productId, quantity: 1, name, price, imageUrl }],
+        products: [
+          {
+            productId,
+            quantity: 1,
+            name: item.name,
+            description: item.description,
+            price: item.price,
+            imageUrl: item.imageUrl,
+          },
+        ],
       });
 
-      return res.status(201).json({ data: newCart});
+      return res.status(201).json({ data: newCart.product });
     }
   } catch (err) {
     next(err);
@@ -89,11 +102,11 @@ exports.removeFromCart = async (req, res, next) => {
           productItem.quantity -= 1;
           cart.products[itemIndex] = productItem;
         } else {
-          cart.products.slice(itemIndex, 1);
+          cart.products.splice(itemIndex, 1);
         }
       }
       cart = await cart.save();
-      return res.status(201).json({ data: cart  });
+      return res.status(201).json({ data: cart.products });
     } else {
       //no cart for user, create new cart
       return next(
