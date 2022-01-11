@@ -52,7 +52,7 @@ exports.addToCart = async (req, res, next) => {
         });
       }
       cart = await cart.save();
-      return res.status(201).json({ data: cart });
+      return res.status(201).json({ data: cart.products });
     } else {
       const item = await Product.findById(productId);
       //no cart for user, create new cart
@@ -70,7 +70,7 @@ exports.addToCart = async (req, res, next) => {
         ],
       });
 
-      return res.status(201).json({ data: newCart.product });
+      return res.status(201).json({ data: newCart.products });
     }
   } catch (err) {
     next(err);
