@@ -27,6 +27,14 @@ exports.addToCart = async (req, res, next) => {
         res,
         next
       );
+    let item = await Product.findById(productId);
+    if (!item?.quandity > 0)
+      return next(
+        new RouteError(400, "fail", "product not available"),
+        req,
+        res,
+        next
+      );
     const userId = req.user;
 
     let cart = await Cart.findOne({ userId });
@@ -40,7 +48,6 @@ exports.addToCart = async (req, res, next) => {
         productItem.quantity += 1;
         cart.products[itemIndex] = productItem;
       } else {
-        const item = await Product.findById(productId);
         //product does not exists in cart, add new item
         cart.products.push({
           productId,
@@ -51,10 +58,11 @@ exports.addToCart = async (req, res, next) => {
           imageUrl: item.imageUrl,
         });
       }
+      item.quandity -= 1;
       cart = await cart.save();
+      await item.save();
       return res.status(201).json({ data: cart.products });
     } else {
-      const item = await Product.findById(productId);
       //no cart for user, create new cart
       const newCart = await Cart.create({
         userId,
@@ -69,7 +77,8 @@ exports.addToCart = async (req, res, next) => {
           },
         ],
       });
-
+      item.quandity -= 1;
+      await item.save();
       return res.status(201).json({ data: newCart.products });
     }
   } catch (err) {
@@ -87,6 +96,15 @@ exports.removeFromCart = async (req, res, next) => {
         res,
         next
       );
+    let item = await Product.findById(productId);
+    if (!item)
+      return next(
+        new RouteError(400, "fail", "product not found"),
+        req,
+        res,
+        next
+      );
+
     const userId = req.user;
 
     let cart = await Cart.findOne({ userId });
@@ -105,7 +123,9 @@ exports.removeFromCart = async (req, res, next) => {
           cart.products.splice(itemIndex, 1);
         }
       }
+      item.quandity += 1;
       cart = await cart.save();
+      await item.save();
       return res.status(201).json({ data: cart.products });
     } else {
       //no cart for user, create new cart
